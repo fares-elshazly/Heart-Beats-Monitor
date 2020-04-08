@@ -54,6 +54,7 @@ class _BPMScreenState extends State<BPMScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.timer),
         onPressed: () async {
+          _controller.flash(true);
           if (await Torch.hasTorch) Torch.turnOn();
           ImageProcessing imageProcessing = ImageProcessing();
           stopWatch.start();
