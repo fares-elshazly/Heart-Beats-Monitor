@@ -1,8 +1,4 @@
-import 'dart:async';
-import 'dart:typed_data';
 import 'package:camera/camera.dart';
-import 'package:smart_signal_processing/smart_signal_processing.dart';
-import 'package:flutter/services.dart' show rootBundle;
 
 class ImageProcessing {
   double redBlueRatio = 0;
@@ -59,61 +55,61 @@ class ImageProcessing {
     redAvgList.add(colors[2]);
   }
 
-  Future<int> calculateBPM(int totalTimeInSeconds) async {
-    if (redAvgList.length == 0) return -1;
+  // Future<int> calculateBPM(int totalTimeInSeconds) async {
+  //   if (redAvgList.length == 0) return -1;
 
-    double samplingFrequency = (redAvgList.length / totalTimeInSeconds);
+  //   double samplingFrequency = (redAvgList.length / totalTimeInSeconds);
 
-    List redAvgListCopy = redAvgList.map((element) => element).toList();
-    double frequency =
-        await calculateFrequency(redAvgListCopy, samplingFrequency);
+  //   List redAvgListCopy = redAvgList.map((element) => element).toList();
+  //   double frequency =
+  //       // await calculateFrequency(redAvgListCopy, samplingFrequency);
 
-    int bpm = (frequency * 60).ceil();
+  //   int bpm = (frequency * 60).ceil();
 
-    return bpm > 0 ? bpm : -1;
-  }
+  //   return bpm > 0 ? bpm : -1;
+  // }
 
-  Future<double> calculateFrequency(
-      List<double> redAvgList, double samplingFrequency) async {
-    double tmp = 0;
-    double pomp = 0;
-    double frequency;
+  // Future<double> calculateFrequency(
+  //     List<double> redAvgList, double samplingFrequency) async {
+  //   double tmp = 0;
+  //   double pomp = 0;
+  //   double frequency;
 
-    int redAvgListLength = redAvgList.length;
-    int lengthNearestPower = nearestPowerOfTwo(redAvgListLength);
+  //   int redAvgListLength = redAvgList.length;
+  //   int lengthNearestPower = nearestPowerOfTwo(redAvgListLength);
 
-    for (int i = redAvgListLength; i < lengthNearestPower; ++i) {
-      redAvgList.add(0);
-    }
+  //   for (int i = redAvgListLength; i < lengthNearestPower; ++i) {
+  //     redAvgList.add(0);
+  //   }
 
-    assert(redAvgList.length == lengthNearestPower);
+  //   assert(redAvgList.length == lengthNearestPower);
 
-    Float64List redAvgListFloatList = Float64List.fromList(redAvgList);
+  //   Float64List redAvgListFloatList = Float64List.fromList(redAvgList);
 
-    Float64List redAvgListImages = Float64List(redAvgList.length);
+  //   Float64List redAvgListImages = Float64List(redAvgList.length);
 
-    FFT.transform(redAvgListFloatList, redAvgListImages);
+  //   FFT.transform(redAvgListFloatList, redAvgListImages);
 
-    for (int p = 35; p < redAvgListLength; p++) {
-      redAvgListFloatList[p] = redAvgListFloatList[p].abs();
-      assert(redAvgListFloatList[p] >= 0);
-    }
+  //   for (int p = 35; p < redAvgListLength; p++) {
+  //     redAvgListFloatList[p] = redAvgListFloatList[p].abs();
+  //     assert(redAvgListFloatList[p] >= 0);
+  //   }
 
-    for (int p = 35; p < redAvgListLength; p++) {
-      assert(redAvgListFloatList[p] >= 0);
+  //   for (int p = 35; p < redAvgListLength; p++) {
+  //     assert(redAvgListFloatList[p] >= 0);
 
-      if (tmp < redAvgListFloatList[p]) {
-        tmp = redAvgListFloatList[p];
-        pomp = p.toDouble();
-      }
-    }
+  //     if (tmp < redAvgListFloatList[p]) {
+  //       tmp = redAvgListFloatList[p];
+  //       pomp = p.toDouble();
+  //     }
+  //   }
 
-    if (pomp < 35) pomp = 0;
+  //   if (pomp < 35) pomp = 0;
 
-    frequency = pomp * samplingFrequency / (2 * redAvgListLength);
+  //   frequency = pomp * samplingFrequency / (2 * redAvgListLength);
 
-    return frequency;
-  }
+  //   return frequency;
+  // }
 
   int nearestPowerOfTwo(int v) {
     v--;
