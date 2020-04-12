@@ -65,7 +65,7 @@ class HomePageView extends State<HomePage> {
     int _n;
     double _m;
     double _threshold;
-    double _bpm;
+    double _newBPM;
     int _counter;
     int _previous;
     while (_toggled) {
@@ -78,7 +78,7 @@ class HomePageView extends State<HomePage> {
         if (value.value > _m) _m = value.value;
       });
       _threshold = (_m + _avg) / 2;
-      _bpm = 0;
+      _newBPM = 0;
       _counter = 0;
       _previous = 0;
       for (int i = 1; i < _n; i++) {
@@ -86,16 +86,16 @@ class HomePageView extends State<HomePage> {
             _values[i].value > _threshold) {
           if (_previous != 0) {
             _counter++;
-            _bpm +=
-                60000 / (_values[i].time.millisecondsSinceEpoch - _previous);
+            _newBPM += 60000 / (_values[i].time.millisecondsSinceEpoch - _previous);
           }
           _previous = _values[i].time.millisecondsSinceEpoch;
         }
       }
       if (_counter > 0) {
-        _bpm = _bpm / _counter;
+        _newBPM = _newBPM / _counter;
         setState(() {
-          _bpm = (1 - _alpha) * _bpm + _alpha * _bpm;
+          _newBPM = (1 - _alpha) * _newBPM + _alpha * _newBPM;
+          _bpm = _newBPM.round();
         });
       }
       await Future.delayed(Duration(milliseconds: (1000 * 50 / 30).round()));
@@ -106,6 +106,7 @@ class HomePageView extends State<HomePage> {
     double _avg =
         image.planes.first.bytes.reduce((value, element) => value + element) /
             image.planes.first.bytes.length;
+    print('AVG: $_avg');
     if (_data.length >= 50) {
       _data.removeAt(0);
     }
