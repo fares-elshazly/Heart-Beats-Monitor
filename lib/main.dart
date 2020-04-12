@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_heart/BPMScreen.dart';
+import 'package:hello_heart/MediumCode.dart';
 
 void main() => runApp(MyApp());
 
@@ -12,7 +13,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyRate(),
+      // home: MyRate(),
+      home: HomePage(),
     );
   }
 }

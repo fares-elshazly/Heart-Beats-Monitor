@@ -69,11 +69,11 @@ class _BPMScreenState extends State<BPMScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.timer),
         onPressed: () async {
-          _controller.flash(true);
           ImageProcessing imageProcessing = ImageProcessing();
           stopWatch.start();
 
           _controller.startImageStream((CameraImage image) async {
+            _controller.flash(true);
             // imageProcessing.addCameraFrame(image);
             // if (stopWatch.elapsed.inSeconds > 10) {
             //   _controller.stopImageStream();
