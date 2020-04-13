@@ -1,7 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_heart/BPMScreen.dart';
-import 'package:hello_heart/MediumCode.dart';
+import 'package:hello_heart/HeartBeatsModule.dart';
 
 void main() => runApp(MyApp());
 
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       // home: MyRate(),
-      home: HomePage(),
+      home: HeartBeatsModule(),
     );
   }
 }

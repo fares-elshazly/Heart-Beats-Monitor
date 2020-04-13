@@ -3,23 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:wakelock/wakelock.dart';
 import 'Chart.dart';
 
-class HomePage extends StatefulWidget {
+class HeartBeatsModule extends StatefulWidget {
   @override
   HomePageView createState() {
     return HomePageView();
   }
 }
 
-class HomePageView extends State<HomePage> {
+class HomePageView extends State<HeartBeatsModule> {
   bool _toggled = false;
   bool _processing = false;
   List<SensorValue> _data = [];
   CameraController _controller;
   double _alpha = 0.3;
   int _bpm = 0;
+  Stopwatch stopwatch = Stopwatch();
 
   _toggle() {
     _initController().then((onValue) {
+      stopwatch.start();
       Wakelock.enable();
       setState(() {
         _toggled = true;
@@ -30,12 +32,15 @@ class HomePageView extends State<HomePage> {
   }
 
   _untoggle() {
+    stopwatch.stop();
+    stopwatch.reset();
     _disposeController();
     Wakelock.disable();
     setState(() {
       _toggled = false;
       _processing = false;
     });
+    print('BPM: $_bpm');
   }
 
   Future<void> _initController() async {
@@ -52,6 +57,7 @@ class HomePageView extends State<HomePage> {
             _processing = true;
           });
           _scanImage(image);
+          if(stopwatch.elapsed.inSeconds > 10) _untoggle();
         }
       });
     } catch (Exception) {
@@ -151,7 +157,7 @@ class HomePageView extends State<HomePage> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        (_bpm > 30 && _bpm < 150 ? _bpm.round().toString() : "--"),
+                        (_bpm > 30 && _bpm < 150 && !_toggled ? _bpm.round().toString() : "--"),
                         style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                       ),
                     ),
