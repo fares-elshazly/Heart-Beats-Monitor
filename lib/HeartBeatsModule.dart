@@ -12,7 +12,7 @@ class HeartBeatsModule extends StatefulWidget {
 
 class HomePageView extends State<HeartBeatsModule> {
   bool _toggled = false;
-  bool _processing = false;
+  // bool _processing = false;
   List<SensorValue> _data = [];
   CameraController _controller;
   double _alpha = 0.3;
@@ -25,7 +25,7 @@ class HomePageView extends State<HeartBeatsModule> {
       Wakelock.enable();
       setState(() {
         _toggled = true;
-        _processing = false;
+        // _processing = false;
       });
       _updateBPM();
     });
@@ -36,9 +36,10 @@ class HomePageView extends State<HeartBeatsModule> {
     stopwatch.reset();
     _disposeController();
     Wakelock.disable();
+    _data = [];
     setState(() {
       _toggled = false;
-      _processing = false;
+      // _processing = false;
     });
     print('BPM: $_bpm');
   }
@@ -52,13 +53,13 @@ class HomePageView extends State<HeartBeatsModule> {
         _controller.flash(true);
       });
       _controller.startImageStream((CameraImage image) {
-        if (!_processing) {
-          setState(() {
-            _processing = true;
-          });
-          _scanImage(image);
-          if(stopwatch.elapsed.inSeconds > 10) _untoggle();
-        }
+        // if (!_processing) {
+        // setState(() {
+        //   _processing = true;
+        // });
+        _scanImage(image);
+        if (stopwatch.elapsed.inSeconds > 10) _untoggle();
+        // }
       });
     } catch (Exception) {
       print(Exception);
@@ -84,6 +85,7 @@ class HomePageView extends State<HeartBeatsModule> {
         if (value.value > _m) _m = value.value;
       });
       _threshold = (_m + _avg) / 2;
+      print('_threshold: $_threshold');
       _newBPM = 0;
       _counter = 0;
       _previous = 0;
@@ -92,7 +94,9 @@ class HomePageView extends State<HeartBeatsModule> {
             _values[i].value > _threshold) {
           if (_previous != 0) {
             _counter++;
-            _newBPM += 60000 / (_values[i].time.millisecondsSinceEpoch - _previous);
+            _newBPM +=
+                60000 / (_values[i].time.millisecondsSinceEpoch - _previous);
+            print('New BPM: $_newBPM');
           }
           _previous = _values[i].time.millisecondsSinceEpoch;
         }
@@ -113,17 +117,22 @@ class HomePageView extends State<HeartBeatsModule> {
         image.planes.first.bytes.reduce((value, element) => value + element) /
             image.planes.first.bytes.length;
     print('AVG: $_avg');
+    print('Data Length: ${_data.length}');
     if (_data.length >= 50) {
+      if((_avg - _data[_data.length - 1].value).abs() > 5) {
+        _untoggle();
+        createDialog();
+      }
       _data.removeAt(0);
     }
     setState(() {
       _data.add(SensorValue(DateTime.now(), _avg));
     });
-    Future.delayed(Duration(milliseconds: 1000 ~/ 30)).then((onValue) {
-      setState(() {
-        _processing = false;
-      });
-    });
+    // Future.delayed(Duration(milliseconds: 1000 ~/ 30)).then((onValue) {
+    //   setState(() {
+    //     _processing = false;
+    //   });
+    // });
   }
 
   _disposeController() {
@@ -157,8 +166,11 @@ class HomePageView extends State<HeartBeatsModule> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        (_bpm > 30 && _bpm < 150 && !_toggled ? _bpm.round().toString() : "--"),
-                        style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                        (_bpm > 30 && _bpm < 150 && !_toggled
+                            ? _bpm.round().toString()
+                            : "--"),
+                        style: TextStyle(
+                            fontSize: 32, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -195,6 +207,34 @@ class HomePageView extends State<HeartBeatsModule> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> createDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Failed!'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Sorry but something went wrong please try again'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Close'),
+              onPressed: () {
+                if(_toggled) _untoggle();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
