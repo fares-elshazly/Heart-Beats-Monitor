@@ -118,7 +118,7 @@ class HomePageView extends State<HeartBeatsModule> {
             image.planes.first.bytes.length;
     print('AVG: $_avg');
     print('Data Length: ${_data.length}');
-    if(_data.length > 10) {
+    if(_data.length > 30) {
       if((_avg - _data[_data.length - 1].value).abs() > 5) {
         _untoggle();
         createDialog();
